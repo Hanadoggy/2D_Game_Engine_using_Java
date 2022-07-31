@@ -23,6 +23,8 @@ public class Window {
     private static Scene currentScene;
 
     private Window() {
+
+        // Window size and title
         this.width = 1920;
         this.height = 1080;
         this.title = "Mario";
@@ -35,21 +37,25 @@ public class Window {
     }
 
     public static void changeScene(int newScene) {
+
         switch (newScene) {
             case 0:
                 currentScene = new LevelEditorScene();
-                //currentScene.init();
+                currentScene.init();
                 break;
             case 1:
                 currentScene = new LevelScene();
+                currentScene.init();
                 break;
             default:
-                assert false : "Unknown scene '" + newScene +"'";
+                assert false : "Unknown scene '" + newScene + "'";
                 break;
         }
+
     }
 
     public static Window get() {
+
         // for singleton window
         if (Window.window == null) {
             Window.window = new Window();
