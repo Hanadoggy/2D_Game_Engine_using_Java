@@ -4,14 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GameObject {
-
     private String name;
     private List<Component> components;
     public Transform transform;
 
-    public GameObject(String name) {
-        this(name, new Transform());
-    }
+    public GameObject(String name) { this(name, new Transform()); }
 
     public GameObject(String name, Transform transform) {
         this.name = name;
@@ -60,5 +57,4 @@ public class GameObject {
             components.get(i).start();
         }
     }
-
 }

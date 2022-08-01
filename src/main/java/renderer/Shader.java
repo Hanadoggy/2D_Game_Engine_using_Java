@@ -13,10 +13,8 @@ import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL20.glGetShaderInfoLog;
 
 public class Shader {
-
     private int shaderProgramID;
     private boolean beingUsed = false;
-
     private String vertexSource;
     private String fragmentSource;
     private String filepath;
@@ -58,11 +56,9 @@ public class Shader {
             e.printStackTrace();
             assert false : "Error : Could not open file for shader: '" + filepath + "'";
         }
-
     }
 
     public void compile() {
-
         // =======================================
         // Compile and link shaders
         // =======================================
@@ -78,6 +74,7 @@ public class Shader {
 
         // Check for error in compilation
         int success = glGetShaderi(vertexID, GL_COMPILE_STATUS);
+
         if (success == GL_FALSE) {
             int len = glGetShaderi(vertexID, GL_INFO_LOG_LENGTH);
             System.out.println("ERROR: '" + filepath + "'\n\tVertex shader compilation failed.");
@@ -182,5 +179,9 @@ public class Shader {
         glUniform1i(varLocation, slot);
     }
 
-
+    public void uploadIntArray(String varName, int[] array) {
+        int varLocation = glGetUniformLocation(shaderProgramID, varName);
+        use();
+        glUniform1iv(varLocation, array);
+    }
 }

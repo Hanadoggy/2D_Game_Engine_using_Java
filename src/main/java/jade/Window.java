@@ -3,7 +3,6 @@ package jade;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
-import util.Time;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
@@ -11,19 +10,14 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class Window {
-
     private final int width, height;
     private final String title;
     private long glfwWindow;
-
     public float r, g, b, a;
-
     private static Window window = null;
-
     private static Scene currentScene;
 
     private Window() {
-
         // Window size and title
         this.width = 1920;
         this.height = 1080;
@@ -37,7 +31,6 @@ public class Window {
     }
 
     public static void changeScene(int newScene) {
-
         switch (newScene) {
             case 0:
                 currentScene = new LevelEditorScene();
@@ -53,18 +46,15 @@ public class Window {
                 assert false : "Unknown scene '" + newScene + "'";
                 break;
         }
-
     }
 
     public static Window get() {
-
         // for singleton window
         if (Window.window == null) {
             Window.window = new Window();
         }
 
         return Window.window;
-
     }
 
     public static Scene getScene() {
@@ -117,7 +107,6 @@ public class Window {
         glfwMakeContextCurrent(glfwWindow);
         // Enable v-sync;
         glfwSwapInterval(1);
-
         // Make the window visible
         glfwShowWindow(glfwWindow);
 
@@ -132,8 +121,8 @@ public class Window {
     }
 
     public void loop() {
-        float beginTime = Time.getTime();
-        float endTime = Time.getTime();
+        float beginTime = (float)glfwGetTime();
+        float endTime;
         float dt = -1.0f;
 
         while (!glfwWindowShouldClose(glfwWindow)) {
@@ -149,7 +138,7 @@ public class Window {
 
             glfwSwapBuffers(glfwWindow);
 
-            endTime = Time.getTime();
+            endTime = (float)glfwGetTime();
             dt = endTime - beginTime;
             beginTime = endTime;
         }
