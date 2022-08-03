@@ -3,6 +3,11 @@ package jade;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
+import renderer.DebugDraw;
+import renderer.FrameBuffer;
+import scenes.LevelEditorScene;
+import scenes.LevelScene;
+import scenes.Scene;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
@@ -18,11 +23,12 @@ public class Window {
     public float r, g, b, a;
     private static Window window = null;
     private static Scene currentScene;
+    private FrameBuffer frameBuffer;
 
     private Window() {
         // Window size and title
-        this.width = 1920;
-        this.height = 1080;
+        this.width = 3840;
+        this.height = 2160;
         this.title = "Mario";
 
         // Base color
@@ -127,6 +133,7 @@ public class Window {
         glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
         this.imguiLayer = new ImGuiLayer(glfwWindow);
         this.imguiLayer.initImGui();
+        this.frameBuffer = new FrameBuffer(3840, 2160);
 
         Window.changeScene(0);
     }
@@ -140,12 +147,17 @@ public class Window {
             // Poll events
             glfwPollEvents();
 
+            DebugDraw.beginFrame();
+
             glClearColor(r, g, b, a);
             glClear(GL_COLOR_BUFFER_BIT);
 
+            this.frameBuffer.bind();
             if (dt >= 0) {
+                DebugDraw.draw();
                 currentScene.update(dt);
             }
+            this.frameBuffer.unbind();
 
             this.imguiLayer.update(dt, currentScene);
             glfwSwapBuffers(glfwWindow);
