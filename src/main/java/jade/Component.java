@@ -52,13 +52,13 @@ public abstract class Component {
                 } else if (type == Vector3f.class) {
                     Vector3f val = (Vector3f)value;
                     float[] imVec = {val.x, val.y, val.z};
-                    if (ImGui.dragFloat(name + ": ", imVec)) {
+                    if (ImGui.dragFloat3(name + ": ", imVec)) {
                         val.set(imVec[0], imVec[1], imVec[2]);
                     }
                 } else if (type == Vector4f.class) {
                     Vector4f val = (Vector4f)value;
                     float[] imVec = {val.x, val.y, val.z, val.w};
-                    if (ImGui.dragFloat(name + ": ", imVec)) {
+                    if (ImGui.dragFloat4(name + ": ", imVec)) {
                         val.set(imVec[0], imVec[1], imVec[2], imVec[3]);
                     }
                 }
