@@ -1,18 +1,18 @@
 [
   {
-    "uid": 1,
+    "uid": 0,
     "name": "Sprite_Object_Gen",
     "components": [
       {
         "type": "jade.Transform",
         "properties": {
           "position": {
-            "x": 256.0,
-            "y": 383.74
+            "x": -247.5,
+            "y": 1.25
           },
           "scale": {
-            "x": 32.0,
-            "y": 32.0
+            "x": 0.25,
+            "y": 0.25
           },
           "rotation": 0.0,
           "zIndex": 0,
@@ -38,20 +38,20 @@
             },
             "texCoords": [
               {
-                "x": 0.71428573,
-                "y": 0.9166667
-              },
-              {
-                "x": 0.71428573,
-                "y": 0.8333333
-              },
-              {
                 "x": 0.5714286,
                 "y": 0.8333333
               },
               {
                 "x": 0.5714286,
-                "y": 0.9166667
+                "y": 0.75
+              },
+              {
+                "x": 0.42857143,
+                "y": 0.75
+              },
+              {
+                "x": 0.42857143,
+                "y": 0.8333333
               }
             ]
           },
@@ -59,26 +59,27 @@
         }
       }
     ],
-    "doSerialization": true
+    "doSerialization": true,
+    "isDead": false
   },
   {
-    "uid": 2,
+    "uid": 1,
     "name": "Sprite_Object_Gen",
     "components": [
       {
         "type": "jade.Transform",
         "properties": {
           "position": {
-            "x": 320.0,
-            "y": 384.0
+            "x": -247.34598,
+            "y": 1.2520487
           },
           "scale": {
-            "x": 32.0,
-            "y": 32.0
+            "x": 0.25,
+            "y": 0.25
           },
           "rotation": 0.0,
           "zIndex": 0,
-          "uid": 39
+          "uid": 19
         }
       },
       {
@@ -101,88 +102,27 @@
             "texCoords": [
               {
                 "x": 0.5714286,
-                "y": 0.9166667
+                "y": 0.8333333
               },
               {
                 "x": 0.5714286,
-                "y": 0.8333333
+                "y": 0.75
+              },
+              {
+                "x": 0.42857143,
+                "y": 0.75
               },
               {
                 "x": 0.42857143,
                 "y": 0.8333333
-              },
-              {
-                "x": 0.42857143,
-                "y": 0.9166667
               }
             ]
           },
-          "uid": 40
+          "uid": 20
         }
       }
     ],
-    "doSerialization": true
-  },
-  {
-    "uid": 3,
-    "name": "Sprite_Object_Gen",
-    "components": [
-      {
-        "type": "jade.Transform",
-        "properties": {
-          "position": {
-            "x": 288.0,
-            "y": 384.0
-          },
-          "scale": {
-            "x": 32.0,
-            "y": 32.0
-          },
-          "rotation": 0.0,
-          "zIndex": 0,
-          "uid": 41
-        }
-      },
-      {
-        "type": "components.SpriteRenderer",
-        "properties": {
-          "color": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0,
-            "w": 1.0
-          },
-          "sprite": {
-            "width": 16.0,
-            "height": 16.0,
-            "texture": {
-              "filepath": "assets/images/spritesheets/decorationsAndBlocks.png",
-              "width": 112,
-              "height": 192
-            },
-            "texCoords": [
-              {
-                "x": 0.42857143,
-                "y": 0.9166667
-              },
-              {
-                "x": 0.42857143,
-                "y": 0.8333333
-              },
-              {
-                "x": 0.2857143,
-                "y": 0.8333333
-              },
-              {
-                "x": 0.2857143,
-                "y": 0.9166667
-              }
-            ]
-          },
-          "uid": 42
-        }
-      }
-    ],
-    "doSerialization": true
+    "doSerialization": true,
+    "isDead": false
   }
 ]
