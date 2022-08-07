@@ -5,10 +5,8 @@ import jade.GameObject;
 import jade.Window;
 import org.jbox2d.dynamics.contacts.Contact;
 import org.joml.Vector2f;
-import org.joml.Vector3f;
 import physics2d.RaycastInfo;
 import physics2d.components.Rigidbody2D;
-import renderer.DebugDraw;
 import util.AssetPool;
 
 public class TurtleAI extends Component {
@@ -41,8 +39,10 @@ public class TurtleAI extends Component {
 
         if (!isDead || isMoving) {
             if (goingRight) {
+                gameObject.transform.scale.x = -0.25f;
                 velocity.x = walkSpeed;
             } else {
+                gameObject.transform.scale.x = 0.25f;
                 velocity.x = -walkSpeed;
             }
         } else {
@@ -102,10 +102,10 @@ public class TurtleAI extends Component {
 
     @Override
     public void beginCollision(GameObject obj, Contact contact, Vector2f contactNormal) {
-        GoombaAI goombaAI = obj.getComponent(GoombaAI.class);
-        if (goombaAI != null) {
-            return;
-        }
+        // GoombaAI goombaAI = obj.getComponent(GoombaAI.class);
+        // if (goombaAI != null) {
+        //     return;
+        // }
 
         PlayerController playerController = obj.getComponent(PlayerController.class);
         if (playerController != null) {

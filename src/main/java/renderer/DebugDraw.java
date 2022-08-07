@@ -6,17 +6,14 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 import util.AssetPool;
 import util.JMath;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
 
 public class DebugDraw {
-    private static int MAX_LINES = 3000;
+    private static int MAX_LINES = 10000;
 
     private static List<Line2D> lines = new ArrayList<>();
     // 6 floats per vertex, 2 vertices per line
@@ -100,7 +97,7 @@ public class DebugDraw {
         glEnableVertexAttribArray(1);
 
         // Draw the batch
-        glDrawArrays(GL_LINES, 0, lines.size() * 6 * 2);
+        glDrawArrays(GL_LINES, 0, lines.size());
 
         // Disable Location
         glDisableVertexAttribArray(0);
@@ -127,11 +124,8 @@ public class DebugDraw {
         Camera camera = Window.getScene().camera();
         Vector2f cameraLeft = new Vector2f(camera.position).add(new Vector2f(-2.0f, -2.0f));
         Vector2f cameraRight = new Vector2f(camera.position).add(new Vector2f(camera.projectionSize).mul(camera.getZoom())).add(new Vector2f(4.0f, 4.0f));
-        if (lines.size() >= MAX_LINES ||
-                !(
-                        ((from.x >= cameraLeft.x && from.x <= cameraRight.x) && (from.y >= cameraLeft.y && from.y <= cameraRight.y)) ||
-                                ((to.x >= cameraLeft.x && to.x <= cameraRight.x) && (to.y >= cameraLeft.y && to.y <= cameraRight.y)))
-        ) {
+        if (lines.size() >= MAX_LINES || !(((from.x >= cameraLeft.x && from.x <= cameraRight.x) && (from.y >= cameraLeft.y && from.y <= cameraRight.y)) ||
+                                ((to.x >= cameraLeft.x && to.x <= cameraRight.x) && (to.y >= cameraLeft.y && to.y <= cameraRight.y)))) {
             return;
         }
         DebugDraw.lines.add(new Line2D(from, to, color, lifetime));

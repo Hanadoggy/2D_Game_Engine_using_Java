@@ -10,6 +10,7 @@ import observers.events.Event;
 import observers.events.EventType;
 import org.joml.Vector2f;
 import scenes.LevelSceneInitializer;
+import util.AssetPool;
 
 public class GameViewWindow {
 
@@ -25,6 +26,7 @@ public class GameViewWindow {
         if (ImGui.menuItem("Play", "", isPlaying, !isPlaying)) {
             isPlaying = true;
             EventSystem.notify(null, new Event(EventType.GameEngineStartPlay));
+            AssetPool.getSound("assets/sounds/main-theme-overworld.ogg").play();
         }
         if (ImGui.menuItem("Stop", "", !isPlaying, isPlaying)) {
             isPlaying = false;

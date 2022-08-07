@@ -38,7 +38,6 @@ public class LevelSceneInitializer extends SceneInitializer {
         AssetPool.addSpritesheet("assets/images/gizmos.png",
                 new Spritesheet(AssetPool.getTexture("assets/images/gizmos.png"),
                         24, 48, 3, 0));
-        AssetPool.getTexture("assets/images/blendImage2.png");
 
         AssetPool.addSound("assets/sounds/main-theme-overworld.ogg", true);
         AssetPool.addSound("assets/sounds/flagpole.ogg", false);

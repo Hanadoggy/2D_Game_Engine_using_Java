@@ -13,6 +13,7 @@ import jade.Transform;
 import org.joml.Vector2f;
 import physics2d.Physics2D;
 import renderer.Renderer;
+import util.AssetPool;
 
 import java.io.FileWriter;
 import java.io.IOException;
