@@ -9,16 +9,19 @@ import observers.EventSystem;
 import observers.events.Event;
 import observers.events.EventType;
 import org.joml.Vector2f;
+import scenes.LevelSceneInitializer;
 
 public class GameViewWindow {
+
     private float leftX, rightX, topY, bottomY;
     private boolean isPlaying = false;
 
     public void imgui() {
-        ImGui.begin("Game Viewport", ImGuiWindowFlags.NoScrollbar
-                | ImGuiWindowFlags.NoScrollWithMouse | ImGuiWindowFlags.MenuBar);
+        ImGui.begin("Game Viewport", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse
+                | ImGuiWindowFlags.MenuBar);
 
         ImGui.beginMenuBar();
+        isPlaying = Window.getScene().isPlaying();
         if (ImGui.menuItem("Play", "", isPlaying, !isPlaying)) {
             isPlaying = true;
             EventSystem.notify(null, new Event(EventType.GameEngineStartPlay));
@@ -29,19 +32,18 @@ public class GameViewWindow {
         }
         ImGui.endMenuBar();
 
+
         ImGui.setCursorPos(ImGui.getCursorPosX(), ImGui.getCursorPosY());
         ImVec2 windowSize = getLargestSizeForViewport();
         ImVec2 windowPos = getCenteredPositionForViewport(windowSize);
         ImGui.setCursorPos(windowPos.x, windowPos.y);
-
         leftX = windowPos.x + 10;
-        bottomY = windowPos.y;
         rightX = windowPos.x + windowSize.x + 10;
+        bottomY = windowPos.y;
         topY = windowPos.y + windowSize.y;
 
         int textureId = Window.getFramebuffer().getTextureId();
         ImGui.image(textureId, windowSize.x, windowSize.y, 0, 1, 1, 0);
-
 
         MouseListener.setGameViewportPos(new Vector2f(windowPos.x + 10, windowPos.y));
         MouseListener.setGameViewportSize(new Vector2f(windowSize.x, windowSize.y));
@@ -61,6 +63,7 @@ public class GameViewWindow {
         float aspectWidth = windowSize.x;
         float aspectHeight = aspectWidth / Window.getTargetAspectRatio();
         if (aspectHeight > windowSize.y) {
+            // We must switch to pillarbox mode
             aspectHeight = windowSize.y;
             aspectWidth = aspectHeight * Window.getTargetAspectRatio();
         }

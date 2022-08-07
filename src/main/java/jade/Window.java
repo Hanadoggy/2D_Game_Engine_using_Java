@@ -3,37 +3,48 @@ package jade;
 import observers.EventSystem;
 import observers.Observer;
 import observers.events.Event;
-import observers.events.EventType;
+import org.joml.Vector4f;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.openal.AL;
+import org.lwjgl.openal.ALC;
+import org.lwjgl.openal.ALCCapabilities;
+import org.lwjgl.openal.ALCapabilities;
 import org.lwjgl.opengl.GL;
+import physics2d.Physics2D;
 import renderer.*;
 import scenes.LevelEditorSceneInitializer;
+import scenes.LevelSceneInitializer;
 import scenes.Scene;
 import scenes.SceneInitializer;
 import util.AssetPool;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.openal.ALC10.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class Window implements Observer {
     private int width, height;
-    private final String title;
+    private String title;
     private long glfwWindow;
     private ImGuiLayer imguiLayer;
-    private static Window window = null;
-    private static Scene currentScene;
-    private FrameBuffer frameBuffer;
+    private FrameBuffer framebuffer;
     private PickingTexture pickingTexture;
     private boolean runtimePlaying = false;
 
+    private static Window window = null;
+
+    private long audioContext;
+    private long audioDevice;
+
+    private static Scene currentScene;
+
     private Window() {
-        // Window size and title
         this.width = 3840;
         this.height = 2160;
-        this.title = "Mario";
+        this.title = "Jade";
         EventSystem.addObserver(this);
     }
 
@@ -41,7 +52,9 @@ public class Window implements Observer {
         if (currentScene != null) {
             currentScene.destroy();
         }
-        getImGuiLayer().getPropertiesWindow().setActiveGameObject(null);
+
+        getImguiLayer().getPropertiesWindow().setActiveGameObject(null);
+        getImGuiLayer().getPropertiesWindow().clearSelected();
         currentScene = new Scene(sceneInitializer);
         currentScene.load();
         currentScene.init();
@@ -49,7 +62,6 @@ public class Window implements Observer {
     }
 
     public static Window get() {
-        // for singleton window
         if (Window.window == null) {
             Window.window = new Window();
         }
@@ -58,8 +70,12 @@ public class Window implements Observer {
     }
 
     public static Scene getScene() {
-        return get().currentScene;
+        return currentScene;
     }
+
+    public static Physics2D getPhysics() { return currentScene.getPhysics(); }
+
+    public static ImGuiLayer getImGuiLayer() { return get().imguiLayer; }
 
     public void run() {
         System.out.println("Hello LWJGL " + Version.getVersion() + "!");
@@ -67,11 +83,15 @@ public class Window implements Observer {
         init();
         loop();
 
+        // Destroy the audio context
+        alcDestroyContext(audioContext);
+        alcCloseDevice(audioDevice);
+
         // Free the memory
         glfwFreeCallbacks(glfwWindow);
         glfwDestroyWindow(glfwWindow);
 
-        // Terminate GLFW and the free the error Callback
+        // Terminate GLFW and the free the error callback
         glfwTerminate();
         glfwSetErrorCallback(null).free();
     }
@@ -91,17 +111,14 @@ public class Window implements Observer {
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
         glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
 
-        // Create the Window
+        // Create the window
         glfwWindow = glfwCreateWindow(this.width, this.height, this.title, NULL, NULL);
         if (glfwWindow == NULL) {
             throw new IllegalStateException("Failed to create the GLFW window.");
         }
 
-        // Add mouse and key Callback function
         glfwSetCursorPosCallback(glfwWindow, MouseListener::mousePosCallback);
-        glfwSetMouseButtonCallback(glfwWindow, MouseListener::mouseButtonCallback);
         glfwSetScrollCallback(glfwWindow, MouseListener::mouseScrollCallback);
-        glfwSetKeyCallback(glfwWindow, KeyListener::keyCallback);
         glfwSetWindowSizeCallback(glfwWindow, (w, newWidth, newHeight) -> {
             Window.setWidth(newWidth);
             Window.setHeight(newHeight);
@@ -109,10 +126,26 @@ public class Window implements Observer {
 
         // Make the OpenGL context current
         glfwMakeContextCurrent(glfwWindow);
-        // Enable v-sync;
+        // Enable v-sync
         glfwSwapInterval(1);
+
         // Make the window visible
         glfwShowWindow(glfwWindow);
+
+        // Initialize the audio device
+        String defaultDeviceName = alcGetString(0, ALC_DEFAULT_DEVICE_SPECIFIER);
+        audioDevice = alcOpenDevice(defaultDeviceName);
+
+        int[] attributes = {0};
+        audioContext = alcCreateContext(audioDevice, attributes);
+        alcMakeContextCurrent(audioContext);
+
+        ALCCapabilities alcCapabilities = ALC.createCapabilities(audioDevice);
+        ALCapabilities alCapabilities = AL.createCapabilities(alcCapabilities);
+
+        if (!alCapabilities.OpenAL10) {
+            assert false : "Audio library not supported.";
+        }
 
         // This line is critical for LWJGL's interoperation with GLFW's
         // OpenGL context, or any context that is managed externally.
@@ -124,7 +157,7 @@ public class Window implements Observer {
         glEnable(GL_BLEND);
         glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
-        this.frameBuffer = new FrameBuffer(3840, 2160);
+        this.framebuffer = new FrameBuffer(3840, 2160);
         this.pickingTexture = new PickingTexture(3840, 2160);
         glViewport(0, 0, 3840, 2160);
 
@@ -163,12 +196,12 @@ public class Window implements Observer {
             // Render pass 2. Render actual game
             DebugDraw.beginFrame();
 
-            this.frameBuffer.bind();
-            glClearColor(1, 1, 1, 1);
+            this.framebuffer.bind();
+            Vector4f clearColor = getScene().camera().clearColor;
+            glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
             glClear(GL_COLOR_BUFFER_BIT);
 
             if (dt >= 0) {
-                DebugDraw.draw();
                 Renderer.bindShader(defaultShader);
                 if (runtimePlaying) {
                     currentScene.update(dt);
@@ -176,19 +209,20 @@ public class Window implements Observer {
                     currentScene.editorUpdate(dt);
                 }
                 currentScene.render();
+                DebugDraw.draw();
             }
-            this.frameBuffer.unbind();
+            this.framebuffer.unbind();
 
             this.imguiLayer.update(dt, currentScene);
+            EventSystem.notifyQueuedEvents();
             glfwSwapBuffers(glfwWindow);
-            MouseListener.endFrame();
 
+            MouseListener.endFrame();
+            KeyListener.endFrame();
             endTime = (float)glfwGetTime();
             dt = endTime - beginTime;
             beginTime = endTime;
         }
-
-        currentScene.save();
     }
 
     public static int getWidth() {
@@ -196,7 +230,7 @@ public class Window implements Observer {
     }
 
     public static int getHeight() {
-        return get().height;
+        return 2160;//get().height;
     }
 
     public static void setWidth(int newWidth) {
@@ -208,14 +242,14 @@ public class Window implements Observer {
     }
 
     public static FrameBuffer getFramebuffer() {
-        return get().frameBuffer;
+        return get().framebuffer;
     }
 
     public static float getTargetAspectRatio() {
         return 16.0f / 9.0f;
     }
 
-    public static ImGuiLayer getImGuiLayer() {
+    public static ImGuiLayer getImguiLayer() {
         return get().imguiLayer;
     }
 
@@ -224,8 +258,9 @@ public class Window implements Observer {
         switch (event.type) {
             case GameEngineStartPlay:
                 this.runtimePlaying = true;
+                imguiLayer.getPropertiesWindow().clearSelected();
                 currentScene.save();
-                Window.changeScene(new LevelEditorSceneInitializer());
+                Window.changeScene(new LevelSceneInitializer());
                 break;
             case GameEngineStopPlay:
                 this.runtimePlaying = false;
@@ -237,7 +272,6 @@ public class Window implements Observer {
             case SaveLevel:
                 currentScene.save();
                 break;
-
         }
     }
 }

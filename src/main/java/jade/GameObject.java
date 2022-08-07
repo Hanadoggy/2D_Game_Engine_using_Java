@@ -28,6 +28,10 @@ public class GameObject {
         this.uid = ID_COUNTER++;
     }
 
+    public void clearComponents() {
+        this.components.clear();
+    }
+
     public <T extends Component> T getComponent(Class<T> componentClass) {
         for (Component c : components) {
             if (componentClass.isAssignableFrom(c.getClass())) {
@@ -78,9 +82,18 @@ public class GameObject {
     }
 
     public void imgui() {
+        List<Component> componentsToRemove = new ArrayList<>();
         for (Component c : components) {
-            if (ImGui.collapsingHeader(c.getClass().getSimpleName()))
+            if (ImGui.collapsingHeader(c.getClass().getSimpleName())) {
                 c.imgui();
+                if (ImGui.button("Delete")) {
+                    componentsToRemove.add(c);
+                }
+            }
+        }
+
+        for (Component component : componentsToRemove) {
+            components.remove(component);
         }
     }
 
@@ -92,6 +105,7 @@ public class GameObject {
     }
 
     public GameObject copy() {
+        // TODO: come up with cleaner solution
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(Component.class, new ComponentDeserializer())
                 .registerTypeAdapter(GameObject.class, new GameObjectDeserializer())

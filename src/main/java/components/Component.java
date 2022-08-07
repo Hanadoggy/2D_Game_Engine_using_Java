@@ -4,6 +4,7 @@ import editor.JImGui;
 import imgui.ImGui;
 import imgui.type.ImInt;
 import jade.GameObject;
+import org.jbox2d.dynamics.contacts.Contact;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -14,11 +15,16 @@ import java.lang.reflect.Modifier;
 public abstract class Component {
     private static int ID_COUNTER = 0;
     private int uid = -1;
+
     public transient GameObject gameObject = null;
 
-    public void start() { }
+    public void start() {
 
-    public void update(float dt) { }
+    }
+
+    public void update(float dt) {
+
+    }
 
     public void editorUpdate(float dt) {
 
@@ -32,6 +38,7 @@ public abstract class Component {
                 if (isTransient) {
                     continue;
                 }
+
                 boolean isPrivate = Modifier.isPrivate(field.getModifiers());
                 if (isPrivate) {
                     field.setAccessible(true);
@@ -42,40 +49,39 @@ public abstract class Component {
                 String name = field.getName();
 
                 if (type == int.class) {
-                    int val = (int)value;
+                    int val = (int) value;
                     field.set(this, JImGui.dragInt(name, val));
                 } else if (type == float.class) {
-                    float val = (float)value;
+                    float val = (float) value;
                     field.set(this, JImGui.dragFloat(name, val));
                 } else if (type == boolean.class) {
-                    boolean val = (boolean)value;
-                    boolean[] imBool = {val};
+                    boolean val = (boolean) value;
                     if (ImGui.checkbox(name + ": ", val)) {
                         field.set(this, !val);
                     }
                 } else if (type == Vector2f.class) {
-                    Vector2f val = (Vector2f)value;
+                    Vector2f val = (Vector2f) value;
                     JImGui.drawVec2Control(name, val);
                 } else if (type == Vector3f.class) {
-                    Vector3f val = (Vector3f)value;
+                    Vector3f val = (Vector3f) value;
                     float[] imVec = {val.x, val.y, val.z};
                     if (ImGui.dragFloat3(name + ": ", imVec)) {
                         val.set(imVec[0], imVec[1], imVec[2]);
                     }
                 } else if (type == Vector4f.class) {
-                    Vector4f val = (Vector4f)value;
-                    float[] imVec = {val.x, val.y, val.z, val.w};
-                    if (ImGui.dragFloat4(name + ": ", imVec)) {
-                        val.set(imVec[0], imVec[1], imVec[2], imVec[3]);
-                    }
+                    Vector4f val = (Vector4f) value;
+                    JImGui.colorPicker4(name, val);
                 } else if (type.isEnum()) {
                     String[] enumValues = getEnumValues(type);
-                    String enumType = ((Enum)value).name();
+                    String enumType = ((Enum) value).name();
                     ImInt index = new ImInt(indexOf(enumType, enumValues));
-                    if(ImGui.combo(field.getName(), index, enumValues, enumValues.length)) {
+                    if (ImGui.combo(field.getName(), index, enumValues, enumValues.length)) {
                         field.set(this, type.getEnumConstants()[index.get()]);
                     }
+                } else if (type == String.class) {
+                    field.set(this, JImGui.inputText(field.getName() + ": ", (String) value));
                 }
+
 
                 if (isPrivate) {
                     field.setAccessible(false);
@@ -96,7 +102,8 @@ public abstract class Component {
         String[] enumValues = new String[enumType.getEnumConstants().length];
         int i = 0;
         for (T enumIntegerValue : enumType.getEnumConstants()) {
-            enumValues[i++] = enumIntegerValue.name();
+            enumValues[i] = enumIntegerValue.name();
+            i++;
         }
         return enumValues;
     }
@@ -115,6 +122,22 @@ public abstract class Component {
 
     }
 
+    public void beginCollision(GameObject collidingObject, Contact contact, Vector2f contactNormal) {
+
+    }
+
+    public void endCollision(GameObject collidingObject, Contact contact, Vector2f contactNormal) {
+
+    }
+
+    public void preSolve(GameObject collidingObject, Contact contact, Vector2f contactNormal) {
+
+    }
+
+    public void postSolve(GameObject collidingObject, Contact contact, Vector2f contactNormal) {
+
+    }
+
     public int getUid() {
         return this.uid;
     }
@@ -123,4 +146,3 @@ public abstract class Component {
         ID_COUNTER = maxId;
     }
 }
-
